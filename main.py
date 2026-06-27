@@ -48,7 +48,7 @@ live_market_data["MVLL"] = {"price": 47.80, "change": 7.30}
 live_market_data["NVDL"] = {"price": 75.20, "change": 11.45}
 
 # ==========================================
-# 3. 요일별 마켓 랭킹 & 매크로 전략 동적 제어 엔진 (문법 충돌 방지 구조 선언)
+# 3. 요일별 마켓 랭킹 & 매크로 전략 동적 제어 엔진
 # ==========================================
 weekday = datetime.now().weekday()
 
@@ -181,7 +181,6 @@ for i, row in enumerate(reader):
     
     analysis_text = ticker_intelligence.get(ticker, "보유 수량 및 마켓 시세 변화를 모니터링 중인 개인화 포트폴리오 관리 종목입니다.")
     
-    # 가독성 혁신: 텍스트 이탈 방지를 위한 독립 2중 로우 배치
     portfolio_rows += f"""
     <tr style="background-color:#ffffff;">
         <td style="padding:15px 12px; font-size:13px; border-bottom:1px solid #f1f5f9; text-align:left;">
@@ -207,14 +206,13 @@ pct_coin = (assets_summary["암호화폐"] / total_asset_value * 100) if total_a
 sheet_id = SHEET_URL.split('/d/')[1].split('/')[0]
 interactive_dashboard_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/htmlview"
 
-# 템플릿 결합 단계에서의 문자열 충돌 우회를 위해 백센트 포맷팅 바인딩
 current_date_str = current_date
 total_asset_str = f"{total_asset_value:,}"
 pct_kr_str = f"{pct_kr:.1f}"
 pct_us_str = f"{pct_us:.1f}"
 pct_coin_str = f"{pct_coin:.1f}"
 kr_sum_str = f"{assets_summary['국내주식']:,}"
-us_sum_str = f"{assets_summary['미국 ETF (레버리지'] if '미국 ETF (레버리지' in assets_summary else assets_summary['미국 ETF (레버리지)']:,}"
+us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 대괄호 오타 수정 완료
 coin_sum_str = f"{assets_summary['암호화폐']:,}"
 
 # ==========================================
@@ -256,7 +254,7 @@ html_body = f"""
                                         <span style="font-size:32px; font-weight:bold; color:#111111; letter-spacing:-0.5px;">{total_asset_str} <span style="font-size:18px; font-weight:normal; color:#555555;">KRW</span></span>
                                     </td>
                                     <td align="right" valign="middle">
-                                        <span style="background-color:#fbf1f6; color:#e5007d; border:1px solid #e5007d; padding:10px 22px; border-radius:30px; font-size:16px; font-weight:bold; display:inline-block; line-height:1.0;">
+                                        <span style="background-color:#fbf1f6; color:#e5007d; border:1px solid #e5007d; padding:10px 22px; border-radius:30px; font-size:15px; font-weight:bold; display:inline-block; line-height:1.0;">
                                             종합 일간 성과 수익률 편차 <span style="font-size:26px; font-weight:900; vertical-align:middle; margin-left:5px; display:inline-block; position:relative; top:-2px;">▲</span> 4.15%
                                         </span>
                                     </td>
@@ -322,8 +320,8 @@ html_body = f"""
                     
                     <tr>
                         <td bgcolor="#1c1c1f" style="padding:25px; text-align:center; font-size:11px; color:#888888; border-top:1px solid #e5e5e5;">
-                            본 자산 인텔리전스 보고서는 투자판단 참고용 전문 정보이며, 최종 판단은 IT뱅구가 합니다.<br>
-                            IT뱅구 자산 포트폴리오 자동화 시스템 © 2026.
+                            본 자산 인텔리전스 보고서는 투자판단 참고용 전문 정보이며, 최종 판단의 책임은 본인에게 귀속됩니다.<br>
+                            LG U+ 개인화 자산 포트폴리오 자동화 시스템 컴파일 엔지니어링 © 2026.
                         </td>
                     </tr>
                 </table>
@@ -339,7 +337,7 @@ html_body = f"""
 # ==========================================
 try:
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = f"[{current_date_str} IT뱅구 자산 브리핑] 실시간 포트폴리오 스케일 분석 리포트"
+    msg['Subject'] = f"[{current_date_str} U+ 프리미엄 자산 브리핑] 실시간 포트폴리오 스케일 분석 리포트"
     msg['From'] = "wowkang11@naver.com"
     msg['To'] = "wowkang11@naver.com"
     msg.attach(MIMEText(html_body, 'html'))
