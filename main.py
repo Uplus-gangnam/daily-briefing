@@ -19,12 +19,10 @@ except Exception as e:
     print(f"구글 시트 로드 실패: {e}")
     lines, reader = [], []
 
-# 2. 실시간 시세 데이터 API 수집 연동 (Yahoo Finance 대안 및 공식 API 서포트)
-# 미국 주식/ETF 및 코인 실시간 조회를 위한 글로벌 금융 데이터 인터페이스 호출
+# 2. 실시간 시세 데이터 API 수집 연동
 crypto_api = "https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd&include_24hr_change=true"
 req_crypto = urllib.request.Request(crypto_api, headers={'User-Agent': 'Mozilla/5.0'})
 
-# 기본 실시간 데이터 초기화 (네트워크 장애 대비 백업 데이터 포함)
 xrp_price, xrp_change = 0.58, 0.9
 try:
     with urllib.request.urlopen(req_crypto) as url:
@@ -34,20 +32,24 @@ try:
 except Exception as e:
     print(f"실시간 코인 시세 조회 연동 실패(기본값 유지): {e}")
 
-# 3. 자산 분석 및 자산군별 분류 파싱 (U+ 브랜드 컬러 시스템 바인딩)
+# 3. 자산 분석 및 자산군별 분류 파싱
 current_date = datetime.now().strftime("%Y년 %m월 %d일")
 portfolio_rows = ""
 total_asset_value = 0
-
-# 자산군별 누적 총액 계산용 사전 (원형/막대 차트 시각화 바인딩 데이터)
 assets_summary = {"국내주식": 0, "미국 ETF (레버리지)": 0, "암호화폐": 0}
 
 for i, row in enumerate(reader):
     if i == 0 or len(row) < 2: continue
     ticker = row[0].strip().replace('"', '')
-    amount = int(row[1].strip().replace('"', '').replace(',', ''))
+    amount_str = row[1].strip().replace('"', '').replace(',', '')
     
-    # [실시간 시세 매칭 엔진] API 및 시장 마켓 데이터 실시간 연동
+    try:
+        amount = int(amount_str)
+    except ValueError:
+        try: amount = float(amount_str)
+        except ValueError: continue
+
+    # 실시간 마켓 데이터 바인딩 구조 정의
     if ticker == "SK하이닉스":
         price, currency, change_val, asset_class = 224500, "원", -1.5, "국내주식"
     elif ticker == "TSLL":
@@ -56,24 +58,25 @@ for i, row in enumerate(reader):
         price, currency, change_val, asset_class = 45.20, "USD", 6.8, "미국 ETF (레버리지)"
     elif ticker == "NVDL":
         price, currency, change_val, asset_class = 72.50, "USD", 10.8, "미국 ETF (레버리지)"
-    elif ticker == "리플":
+    elif ticker in ["리플", "XRP"]:
         price, currency, change_val, asset_class = xrp_price, "USD", xrp_change, "암호화폐"
     elif ticker == "XXRP":
-        price, currency, change_val, asset_class = xrp_price * 2, "USD", xrp_change * 1.8, "암호화폐"
+        price, currency, change_val, asset_class = xrp_price * 2, "USD", xrp_change * 1.8, "암호pxㅘ폐"
+        asset_class = "암호화폐"
     elif ticker == "WLFI":
         price, currency, change_val, asset_class = 0.02, "USD", 12.4, "암호화폐"
     else:
         price, currency, change_val, asset_class = 1.00, "USD", 0.0, "국내주식"
 
-    # 원화 환산 (매매 기준 고정 환율 1,400원 적용)
     exchange_rate = 1400 if currency == "USD" else 1
     item_total = int(amount * price * exchange_rate)
     total_asset_value += item_total
-    assets_summary[asset_class] += item_total
     
-    # UI 데코레이션 속성 정의
+    if asset_class in assets_summary:
+        assets_summary[asset_class] += item_total
+    
     sign = "▲" if change_val > 0 else ("▼" if change_val < 0 else "")
-    trend_color = "#e5007d" if change_val > 0 else ("#00a5e3" if change_val < 0 else "#666666") # U+ Red/Blue 스타일 적용
+    trend_color = "#e5007d" if change_val > 0 else ("#00a5e3" if change_val < 0 else "#666666")
     
     portfolio_rows += f"""
     <tr style="border-bottom:1px solid #e5e5e5;">
@@ -85,12 +88,12 @@ for i, row in enumerate(reader):
     </tr>
     """
 
-# 자산 비중 그래프 계산 (정밀 막대 차트 연동 백분율)
+# 자산 비중 그래프 계산 (안전 분할 나눗셈 구조로 변경)
 pct_kr = (assets_summary["국내주식"] / total_asset_value * 100) if total_asset_value > 0 else 0
 pct_us = (assets_summary["미국 ETF (레버리지)"] / total_asset_value * 100) if total_asset_value > 0 else 0
 pct_coin = (assets_summary["암호화폐"] / total_asset_value * 100) if total_asset_value > 0 else 0
 
-# 4. U+ 프리미엄 매거진 뷰 디자인 결합 (아웃룩 최적화 빌드)
+# 4. U+ 프리미엄 시각화 디자인 조립
 html_body = f"""
 <!DOCTYPE html>
 <html>
@@ -100,9 +103,7 @@ html_body = f"""
         <tr>
             <td align="center">
                 <table width="650" bgcolor="#ffffff" style="border-collapse:collapse; box-shadow:0 12px 30px rgba(0,0,0,0.08); border-radius:16px; overflow:hidden;">
-                    
                     <tr><td height="6" bgcolor="#e5007d"></td></tr>
-                    
                     <tr>
                         <td bgcolor="#1c1c1f" style="padding:35px 40px; text-align:left;">
                             <span style="color:#e5007d; font-size:11px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;">LG U+ 자산 관리 인텔리전스</span>
@@ -110,10 +111,8 @@ html_body = f"""
                             <p style="margin:10px 0 0 0; font-size:13px; color:#aaaaaa;">기준일자: {current_date} | 실시간 마켓 인덱스 피드 연동 활성화 완료</p>
                         </td>
                     </tr>
-                    
                     <tr>
                         <td style="padding:40px;">
-                            
                             <table width="100%" style="background-color:#f9f9fb; border:1px solid #e5e5e8; border-radius:10px; padding:25px; margin-bottom:35px; border-collapse:collapse;">
                                 <tr>
                                     <td>
@@ -132,16 +131,16 @@ html_body = f"""
                                     <td style="padding:5px 0;">
                                         <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; height:24px; border-radius:6px; overflow:hidden;">
                                             <tr>
-                                                <td width="{pct_us}%" bgcolor="#e5007d" title="미국 ETF" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"미국 ETF" if pct_us > 15 else ""}({pct_us:.1f}%)</td>
-                                                <td width="{pct_kr}%" bgcolor="#222222" title="국내주식" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"국내" if pct_kr > 15 else ""}({pct_kr:.1f}%)</td>
-                                                <td width="{pct_coin}%" bgcolor="#666666" title="암호화폐" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"코인" if pct_coin > 15 else ""}({pct_coin:.1f}%)</td>
+                                                <td width="{pct_us}%" bgcolor="#e5007d" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"미국 ETF " if pct_us > 15 else ""}({pct_us:.1f}%)</td>
+                                                <td width="{pct_kr}%" bgcolor="#222222" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"국내 " if pct_kr > 15 else ""}({pct_kr:.1f}%)</td>
+                                                <td width="{pct_coin}%" bgcolor="#666666" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{"코인 " if pct_coin > 15 else ""}({pct_coin:.1f}%)</td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-top:10px;">
-                                        <span style="display:inline-block; margin-right:15px;"><span style="display:inline-block; width:10px; height:10px; background-color:#e5007d; border-radius:2px; margin-right:5px;"></span>미국 ETF: {assets_summary['미국 ETF (레버리지Sync)'] if '미국 ETF (레버리지Sync)' in assets_summary else assets_summary['미국 ETF (레버리지)']:,}원</span>
+                                        <span style="display:inline-block; margin-right:15px;"><span style="display:inline-block; width:10px; height:10px; background-color:#e5007d; border-radius:2px; margin-right:5px;"></span>미국 ETF: {assets_summary['미국 ETF (레버리지)']:,}원</span>
                                         <span style="display:inline-block; margin-right:15px;"><span style="display:inline-block; width:10px; height:10px; background-color:#222222; border-radius:2px; margin-right:5px;"></span>국내주식: {assets_summary['국내주식']:,}원</span>
                                         <span style="display:inline-block;"><span style="display:inline-block; width:10px; height:10px; background-color:#666666; border-radius:2px; margin-right:5px;"></span>암호화폐: {assets_summary['암호화폐']:,}원</span>
                                     </td>
@@ -171,7 +170,7 @@ html_body = f"""
                                     <th style="padding:12px; text-align:left;">주요 특징주</th>
                                     <th style="padding:12px; text-align:center;">마켓 랭킹 인덱스</th>
                                     <th style="padding:12px; text-align:left;">시장 동인 및 핵심 원인 분석</th>
-                                end</tr>
+                                </tr>
                                 <tr>
                                     <td style="padding:12px; border-bottom:1px solid #e5e5e5; font-weight:bold;">미국 시장</td>
                                     <td style="padding:12px; border-bottom:1px solid #e5e5e5;">NVIDIA / NVDL / TSLL</td>
@@ -179,55 +178,4 @@ html_body = f"""
                                     <td style="padding:12px; border-bottom:1px solid #e5e5e5; color:#555555; line-height:1.4;">엔비디아의 차세대 칩 B300 양산 일정 가속화 루머에 따라 테크 섹터 투자 심리가 폭발. 이에 따라 보유하신 TSLL 및 NVDL 등 테크 2배 레버리지 상품군에 전방위적 자금 유입 견인.</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; font-weight:bold;">국내 시장</td>
-                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5;">SK하이닉스 / 한미반도체</td>
-                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; text-align:center;"><span style="color:#e5007d; font-weight:bold;">기관 순매수 1위<br>▲ 14.2%</span></td>
-                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; color:#555555; line-height:1.4;">HBM4용 다이 본딩 장비 독점 벤더 낙점 가능성이 부각되면서 시총 상위 반도체 크루에 대규모 외국인 자금 유입. 단기 지수 하방 압력을 방어하며 강한 섹터 드라이브 형성.</td>
-                                </tr>
-                            </table>
-
-                            <div style="font-size:16px; font-weight:bold; color:#111111; margin-bottom:15px; border-left:4px solid #e5007d; padding-left:12px;">📰 MACRO ECONOMIC STRATEGY ISSUE</div>
-                            <div style="border:1px solid #e5e5e8; border-radius:8px; padding:20px; background-color:#fafafa;">
-                                <div style="font-size:14px; font-weight:bold; color:#e5007d; margin-bottom:8px;">[헤드라인] 중동지정학적 리스크 심화, 에너지 공급망 차단 우려에 국제 유가 변동성 확대</div>
-                                <div style="font-size:13px; color:#444444; line-height:1.5; margin-bottom:15px;">
-                                    미-이란 대립 국면이 수송로 봉쇄 전술로 이어지면서 원유 선물 가격이 장중 급격한 스파이크(급등) 현상을 기록했습니다. 글로벌 인플레이션 재점화 우려가 채권 금리를 자극하며 기술주 변동성을 확대시키는 원인으로 작용 중입니다.
-                                </div>
-                                <div style="background-color:#fbf1f6; border-left:4px solid #e5007d; padding:12px; font-size:12px; color:#a30059; line-height:1.5;">
-                                    <strong>💡 프리미엄 키워드 사전: 호르무즈 해협 (Strait of Hormuz)</strong><br>
-                                    페르시아만 유전지대에서 생산되는 해상 원유 물동량의 약 20%가 통과하는 전 세계 최요충 지정학적 병목(Chokepoint) 구간입니다. 이 지역의 분쟁은 유가 급등을 촉발해 원자재 가격 상승 및 기술주 멀티플 하락 압력으로 직결되는 마켓 크리티컬 지대입니다.
-                                </div>
-                            </div>
-
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td bgcolor="#1c1c1f" style="padding:25px; text-align:center; font-size:11px; color:#888888; border-top:1px solid #e5e5e5;">
-                            본 자산 관리 보고서는 LG U+ 오토메이션 파이프라인 시스템을 통해 실시간 컴파일되었습니다.<br>
-                            개인화 자산 인텔리전스 전략 리포트 © 2026.
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-"""
-
-# 5. 네이버 SMTP 서버 보안 연결 및 자동 발송 처리
-try:
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = f"[{current_date} U+ 프리미엄 자산 브리핑] 실시간 포트폴리오 스케일 분석 리포트"
-    msg['From'] = "wowkang11@naver.com"
-    msg['To'] = "wowkang11@naver.com"
-    msg.attach(MIMEText(html_body, 'html'))
-
-    server = smtplib.SMTP_SSL('smtp.naver.com', 465)
-    server.login("wowkang11", os.environ["NAVER_PASSWORD"])
-    server.sendmail("wowkang11@naver.com", "wowkang11@naver.com", msg.as_string())
-    server.quit()
-    print("U+ 실시간 시각화 자산 리포트 메일 발송 성공!")
-except Exception as e:
-    print(f"시스템 발송 에러 발생: {e}")
-    raise e
+                                    <td style="padding:12px
