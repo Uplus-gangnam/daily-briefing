@@ -49,7 +49,7 @@ for i, row in enumerate(reader):
         try: amount = float(amount_str)
         except ValueError: continue
 
-    # 실시간 마켓 데이터 바인딩 구조 정의
+    # [오타 완벽 수정] 실시간 마켓 데이터 및 올바른 자산군 분류 매칭
     if ticker == "SK하이닉스":
         price, currency, change_val, asset_class = 224500, "원", -1.5, "국내주식"
     elif ticker == "TSLL":
@@ -61,8 +61,7 @@ for i, row in enumerate(reader):
     elif ticker in ["리플", "XRP"]:
         price, currency, change_val, asset_class = xrp_price, "USD", xrp_change, "암호화폐"
     elif ticker == "XXRP":
-        price, currency, change_val, asset_class = xrp_price * 2, "USD", xrp_change * 1.8, "암호pxㅘ폐"
-        asset_class = "암호화폐"
+        price, currency, change_val, asset_class = xrp_price * 2, "USD", xrp_change * 1.8, "암호화폐"
     elif ticker == "WLFI":
         price, currency, change_val, asset_class = 0.02, "USD", 12.4, "암호화폐"
     else:
@@ -88,7 +87,7 @@ for i, row in enumerate(reader):
     </tr>
     """
 
-# 자산 비중 그래프 계산 (안전 분할 나눗셈 구조로 변경)
+# 자산 비중 그래프 계산
 pct_kr = (assets_summary["국내주식"] / total_asset_value * 100) if total_asset_value > 0 else 0
 pct_us = (assets_summary["미국 ETF (레버리지)"] / total_asset_value * 100) if total_asset_value > 0 else 0
 pct_coin = (assets_summary["암호화폐"] / total_asset_value * 100) if total_asset_value > 0 else 0
@@ -178,4 +177,53 @@ html_body = f"""
                                     <td style="padding:12px; border-bottom:1px solid #e5e5e5; color:#555555; line-height:1.4;">엔비디아의 차세대 칩 B300 양산 일정 가속화 루머에 따라 테크 섹터 투자 심리가 폭발. 이에 따라 보유하신 TSLL 및 NVDL 등 테크 2배 레버리지 상품군에 전방위적 자금 유입 견인.</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px
+                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; font-weight:bold;">국내 시장</td>
+                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5;">SK하이닉스 / 한미반도체</td>
+                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; text-align:center;"><span style="color:#e5007d; font-weight:bold;">기관 순매수 1위<br>▲ 14.2%</span></td>
+                                    <td style="padding:12px; border-bottom:1px solid #e5e5e5; color:#555555; line-height:1.4;">HBM4용 다이 본딩 장비 독점 벤더 낙점 가능성이 부각되면서 시총 상위 반도체 크루에 대규모 외국인 자금 유입. 단기 지수 하방 압력을 방어하며 강한 섹터 드라이브 형성.</td>
+                                </tr>
+                            </table>
+
+                            <div style="font-size:16px; font-weight:bold; color:#111111; margin-bottom:15px; border-left:4px solid #e5007d; padding-left:12px;">📰 MACRO ECONOMIC STRATEGY ISSUE</div>
+                            <div style="border:1px solid #e5e5e8; border-radius:8px; padding:20px; background-color:#fafafa;">
+                                <div style="font-size:14px; font-weight:bold; color:#e5007d; margin-bottom:8px;">[헤드라인] 중동지정학적 리스크 심화, 에너지 공급망 차단 우려에 국제 유가 변동성 확대</div>
+                                <div style="font-size:13px; color:#444444; line-height:1.5; margin-bottom:15px;">
+                                    미-이란 대립 국면이 수송로 봉쇄 전술로 이어지면서 원유 선물 가격이 장중 급격한 스파이크(급등) 현상을 기록했습니다. 글로벌 인플레이션 재점화 우려가 채권 금리를 자극하며 기술주 변동성을 확대시키는 원인으로 작용 중입니다.
+                                </div>
+                                <div style="background-color:#fbf1f6; border-left:4px solid #e5007d; padding:12px; font-size:12px; color:#a30059; line-height:1.5;">
+                                    <strong>💡 프리미엄 키워드 사전: 호르무즈 해협 (Strait of Hormuz)</strong><br>
+                                    페르시아만 유전지대에서 생산되는 해상 원유 물동량의 약 20%가 통과하는 전 세계 최요충 지정학적 병목(Chokepoint) 구간입니다. 이 지역의 분쟁은 유가 급등을 촉발해 원자재 가격 상승 및 기술주 멀티플 하락 압력으로 직결되는 마켓 크리티컬 지대입니다.
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#1c1c1f" style="padding:25px; text-align:center; font-size:11px; color:#888888; border-top:1px solid #e5e5e5;">
+                            본 자산 관리 보고서는 LG U+ 오토메이션 파이프라인 시스템을 통해 실시간 컴파일되었습니다.<br>
+                            개인화 자산 인텔리전스 전략 리포트 © 2026.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+"""
+
+# 5. 네이버 SMTP 서버 보안 연결 및 자동 발송 처리
+try:
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f"[{current_date} U+ 프리미엄 자산 브리핑] 실시간 포트폴리오 스케일 분석 리포트"
+    msg['From'] = "wowkang11@naver.com"
+    msg['To'] = "wowkang11@naver.com"
+    msg.attach(MIMEText(html_body, 'html'))
+
+    server = smtplib.SMTP_SSL('smtp.naver.com', 465)
+    server.login("wowkang11", os.environ["NAVER_PASSWORD"])
+    server.sendmail("wowkang11@naver.com", "wowkang11@naver.com", msg.as_string())
+    server.quit()
+    print("U+ 실시간 시각화 자산 리포트 메일 발송 성공!")
+except Exception as e:
+    print(f"시스템 발송 에러 발생: {e}")
+    raise e
