@@ -212,7 +212,7 @@ pct_kr_str = f"{pct_kr:.1f}"
 pct_us_str = f"{pct_us:.1f}"
 pct_coin_str = f"{pct_coin:.1f}"
 kr_sum_str = f"{assets_summary['국내주식']:,}"
-us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 대괄호 오타 수정 완료
+us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 따옴표 닫기 완전 복구 완료
 coin_sum_str = f"{assets_summary['암호화폐']:,}"
 
 # ==========================================
@@ -265,7 +265,7 @@ html_body = f"""
                             <table width="100%" style="margin-bottom:35px; border-collapse:collapse; font-size:12px;">
                                 <tr>
                                     <td style="padding:5px 0;">
-                                        <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; height:26px; border-radius:6px; overflow:hidden;">
+                                        <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; height:24px; border-radius:6px; overflow:hidden;">
                                             <tr>
                                                 <td width="{pct_kr_str}%" bgcolor="#222222" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{pct_kr_str}%</td>
                                                 <td width="{pct_us_str}%" bgcolor="#e5007d" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{pct_us_str}%</td>
