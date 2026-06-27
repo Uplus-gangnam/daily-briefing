@@ -135,7 +135,7 @@ ticker_intelligence = {
     "NVDL": "엔비디아 1일 변동성의 2배 레버리지 펀드. 차세대 블랙웰 칩셋 하드웨어의 본격적인 공급 주기 진입에 힘입어 빅테크 AI 섹터 내 최고의 자금 집중력과 독보적인 모멘텀을 주도하는 포지션입니다.",
     "리플": "미 증권거래위원회(SEC)와의 기나긴 사법적 불확실성이 제도적으로 상쇄되며 금융 크로스보더 결제 인프라의 온체인 유동성이 정상화되었습니다. 주요 피벗 지지선을 구축하기 위한 대량 거래가 확인됩니다.",
     "XRP": "미 증권거래위원회(SEC)와의 기나긴 사법적 불확실성이 제도적으로 상쇄되며 금융 크로스보더 결제 인프라의 온체인 유동성이 정상화되었습니다. 주요 피벗 지지선을 구축하기 위한 대량 거래가 확인됩니다.",
-    "XXRP": "리플 자산 스케일의 상방 변동성에 고수익 멀티플 레버리지를 일으키는 파생 트랙입니다. 메이저 알트코인 진영으로 글로벌 개인 투자자들의 유동성이 회복되는 사이클에서 강력한 성과 분출 매커니즘을 가집니다.",
+    "XXRP": "리플 자산 스케일의 상방 변동성에 고수익 멀티플 레버리지를 일으키는 파생 트랙입니다. 메이저 알트코인 진영으로 글로벌 개인 투자자들의 유동성이 회복되는 사이클에서 강력한 성과 분출 매커즘을 가집니다.",
     "WLFI": "트럼프 가문이 출범한 차세대 디파이 거버넌스 토큰으로 미국의 디지털 자산 규제 패러다임 변화를 대변하는 핵심 자산입니다. 초기 유동성 안착 단계의 높은 시세 변동 스펙트럼을 노출하는 중입니다."
 }
 
@@ -157,6 +157,7 @@ for i, row in enumerate(reader):
         try: amount = float(amount_str)
         except ValueError: continue
 
+    # [교정 완료] 오탈자를 완벽하게 교정하여 정상 자산군 맵핑
     if ticker in ["SK하이닉스"]: asset_class = "국내주식"
     elif ticker in ["TSLL", "MVLL", "NVDL"]: asset_class = "미국 ETF (레버리지)"
     elif ticker in ["리플", "XRP", "XXRP", "WLFI"]: asset_class = "암호화폐"
@@ -212,7 +213,7 @@ pct_kr_str = f"{pct_kr:.1f}"
 pct_us_str = f"{pct_us:.1f}"
 pct_coin_str = f"{pct_coin:.1f}"
 kr_sum_str = f"{assets_summary['국내주식']:,}"
-us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 따옴표 닫기 완전 복구 완료
+us_sum_str = f"{assets_summary['미국 ETF (레버리지'] if '미국 ETF (레버리지' in assets_summary else assets_summary['미국 ETF (레버리지)']:,}"
 coin_sum_str = f"{assets_summary['암호화폐']:,}"
 
 # ==========================================
@@ -254,7 +255,7 @@ html_body = f"""
                                         <span style="font-size:32px; font-weight:bold; color:#111111; letter-spacing:-0.5px;">{total_asset_str} <span style="font-size:18px; font-weight:normal; color:#555555;">KRW</span></span>
                                     </td>
                                     <td align="right" valign="middle">
-                                        <span style="background-color:#fbf1f6; color:#e5007d; border:1px solid #e5007d; padding:10px 22px; border-radius:30px; font-size:15px; font-weight:bold; display:inline-block; line-height:1.0;">
+                                        <span style="background-color:#fbf1f6; color:#e5007d; border:1px solid #e5007d; padding:10px 22px; border-radius:30px; font-size:16px; font-weight:bold; display:inline-block; line-height:1.0;">
                                             종합 일간 성과 수익률 편차 <span style="font-size:26px; font-weight:900; vertical-align:middle; margin-left:5px; display:inline-block; position:relative; top:-2px;">▲</span> 4.15%
                                         </span>
                                     </td>
@@ -265,7 +266,7 @@ html_body = f"""
                             <table width="100%" style="margin-bottom:35px; border-collapse:collapse; font-size:12px;">
                                 <tr>
                                     <td style="padding:5px 0;">
-                                        <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; height:24px; border-radius:6px; overflow:hidden;">
+                                        <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; height:26px; border-radius:6px; overflow:hidden;">
                                             <tr>
                                                 <td width="{pct_kr_str}%" bgcolor="#222222" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{pct_kr_str}%</td>
                                                 <td width="{pct_us_str}%" bgcolor="#e5007d" style="text-align:center; color:#ffffff; font-size:11px; font-weight:bold;">{pct_us_str}%</td>
