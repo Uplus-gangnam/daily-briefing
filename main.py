@@ -8,6 +8,11 @@ from email.mime.text import MIMEText
 from datetime import datetime
 
 # ==========================================
+# [설정] 본인의 정확한 네이버 아이디를 적어주세요
+# ==========================================
+NAVER_ID = "wowkang11"  # 만약 실제 아이디가 wkang11 이라면 여기를 "wkang11"로 변경해주세요!
+
+# ==========================================
 # 1. 자산 데이터베이스 수집 (구글 스프레드시트 CSV)
 # ==========================================
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1FDjG-ASlGbZcflRiCE6CBXeoHyzcy6R0l2uaXEv0Es8/gviz/tq?tqx=out:csv"
@@ -17,8 +22,9 @@ try:
     response = urllib.request.urlopen(req_sheet)
     lines = [line.decode('utf-8') for line in response.readlines()]
     reader = csv.reader(lines)
+    print("🎯 [1단계] 구글 스프레드시트 데이터 동적 수집 성공")
 except Exception as e:
-    print(f"구글 시트 로드 실패: {e}")
+    print(f"❌ [에러] 구글 시트 로드 실패: {e}")
     lines, reader = [], []
 
 # ==========================================
@@ -35,8 +41,9 @@ try:
         live_market_data["XRP"] = live_market_data["리플"]
         live_market_data["XXRP"] = {"price": c_data['ripple']['usd'] * 2, "change": c_data['ripple']['usd_24h_change'] * 1.8}
         live_market_data["WLFI"] = {"price": c_data.get('world-liberty-financial', {}).get('usd', 0.02), "change": c_data.get('world-liberty-financial', {}).get('usd_24h_change', 12.4)}
+    print("🎯 [2단계] 가상자산 실시간 시세 API 피드 연동 성공")
 except Exception as e:
-    print(f"코인 API 백업 가동: {e}")
+    print(f"⚠️ [경고] 코인 API 백업 가동 (네트워크 우회): {e}")
     live_market_data["리플"] = {"price": 0.58, "change": 1.2}
     live_market_data["XRP"] = live_market_data["리플"]
     live_market_data["XXRP"] = {"price": 1.16, "change": 2.1}
@@ -212,7 +219,7 @@ pct_kr_str = f"{pct_kr:.1f}"
 pct_us_str = f"{pct_us:.1f}"
 pct_coin_str = f"{pct_coin:.1f}"
 kr_sum_str = f"{assets_summary['국내주식']:,}"
-us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 문법 충돌 구문 완전히 초기화 해결 완료
+us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"
 coin_sum_str = f"{assets_summary['암호화폐']:,}"
 
 # ==========================================
@@ -338,15 +345,25 @@ html_body = f"""
 try:
     msg = MIMEMultipart('alternative')
     msg['Subject'] = f"[{current_date_str} U+ 프리미엄 자산 브리핑] 실시간 포트폴리오 스케일 분석 리포트"
-    msg['From'] = "wowkang11@naver.com"
-    msg['To'] = "wowkang11@naver.com"
+    msg['From'] = f"{NAVER_ID}@naver.com"
+    msg['To'] = f"{NAVER_ID}@naver.com"
     msg.attach(MIMEText(html_body, 'html'))
 
+    print(f"🔗 [3단계] smtp.naver.com 서버 보안 연결 시도 중... (ID: {NAVER_ID})")
     server = smtplib.SMTP_SSL('smtp.naver.com', 465)
-    server.login("wowkang11", os.environ["NAVER_PASSWORD"])
-    server.sendmail("wowkang11@naver.com", "wowkang11@naver.com", msg.as_string())
+    
+    # 깃허브 비밀값 로드 검증
+    password = os.environ.get("NAVER_PASSWORD", "")
+    if not password:
+        raise ValueError("GitHub Secrets에 'NAVER_PASSWORD'가 설정되지 않았거나 불러올 수 없습니다.")
+        
+    server.login(NAVER_ID, password)
+    print("🔓 [4단계] 네이버 SMTP 서버 로그인 성공")
+    
+    server.sendmail(f"{NAVER_ID}@naver.com", f"{NAVER_ID}@naver.com", msg.as_string())
     server.quit()
-    print("U+ 프리미엄 실시간 자산 리포트 메일 발송 전면 성공!")
+    print("🚀 [최종] U+ 프리미엄 실시간 자산 리포트 메일 발송 전면 성공!")
 except Exception as e:
-    print(f"시스템 발송 최종 에러 발생: {e}")
+    print(f"❌ [최종 에러 발생] 시스템 발송 실패 원인 지점 분석:")
+    print(f"-> 에러 내용: {e}")
     raise e
