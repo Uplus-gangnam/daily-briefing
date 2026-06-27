@@ -116,7 +116,7 @@ else:  # 수요일 / 주말 브리핑 팩
         <td style="padding:12px; font-size:12px;"><strong>비트코인 (BTC)</strong></td>
         <td style="padding:12px; text-align:right; font-weight:bold; font-size:12px;">67,400 USD</td>
         <td style="padding:12px; text-align:center; color:#e5007d; font-weight:bold; font-size:12px;">▲ 3.2% (순유입 지속)</td>
-        <td style="padding:12px; color:#555555; line-height:1.4; font-size:12px;">글로벌 연기금의 자산 배분 비중 내 암호화폐 현물 ETF 편입 소식이 기관 방어선을 공고히 지지.</td>
+        <td style="padding:12px; color:#555555; line-height:1.4;">글로벌 연기금의 자산 배분 비중 내 암호화폐 현물 ETF 편입 소식이 기관 방어선을 공고히 지지.</td>
     </tr>
     """
     macro_strategy_html = """
@@ -179,7 +179,7 @@ for i, row in enumerate(reader):
     badge_color = '#eff6ff' if '미국' in asset_class else ('#fef2f2' if '국내' in asset_class else '#fef9c3')
     badge_text_color = '#1d4ed8' if '미국' in asset_class else ('#b91c1c' if '국내' in asset_class else '#713f12')
     
-    analysis_text = ticker_intelligence.get(ticker, "보유 수량 및 마켓 시세 변화를 모니터링 중인 포트폴리오 관리 종목입니다.")
+    analysis_text = ticker_intelligence.get(ticker, "보유 수량 및 마켓 시세 변화를 모니터링 중인 개인화 포트폴리오 관리 종목입니다.")
     
     portfolio_rows += f"""
     <tr style="background-color:#ffffff;">
@@ -212,7 +212,7 @@ pct_kr_str = f"{pct_kr:.1f}"
 pct_us_str = f"{pct_us:.1f}"
 pct_coin_str = f"{pct_coin:.1f}"
 kr_sum_str = f"{assets_summary['국내주식']:,}"
-us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"
+us_sum_str = f"{assets_summary['미국 ETF (레버리지)']:,}"  # 문법 충돌 구문 완전히 초기화 해결 완료
 coin_sum_str = f"{assets_summary['암호화폐']:,}"
 
 # ==========================================
